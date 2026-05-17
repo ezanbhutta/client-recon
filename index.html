@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIENT RECON · AI — HaseebMadeIt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #141414; --surface-2: #1c1c1c; --surface-3: #242424;
+    --border: #2a2a2a; --border-hover: #444;
+    --text: #f5f5f5; --text-muted: #888; --text-dim: #555;
+    --accent: #D4FF00; --accent-dim: #8aa600;
+    --danger: #ff4757; --success: #00d97e; --warning: #ffb800; --info: #4d9fff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+  header { background: var(--surface); border-bottom: 2px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 50; flex-wrap: wrap; }
+  .brand { font-family: 'Archivo Black', sans-serif; font-size: 20px; letter-spacing: -0.02em; }
+  .brand span { color: var(--accent); }
+  .brand-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); margin-left: 12px; padding: 4px 8px; background: var(--surface-2); border: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.1em; }
+  .header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .key-input { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 7px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; width: 260px; }
+  .key-input:focus { outline: none; border-color: var(--accent); }
+  .key-input.saved { border-color: var(--success); }
+  .key-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-right: 4px; }
+  .key-help { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+  .key-help:hover { color: #fff; }
+
+  .btn { background: var(--accent); color: #000; border: none; padding: 10px 18px; font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: 0.08em; cursor: pointer; text-transform: uppercase; transition: transform 0.1s, background 0.15s; }
+  .btn:hover:not(:disabled) { background: #e8ff4d; }
+  .btn:active:not(:disabled) { transform: translate(1px, 1px); }
+  .btn:disabled { background: var(--text-dim); color: var(--bg); cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn-danger:hover:not(:disabled) { background: var(--danger); color: #000; }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-lg { padding: 14px 28px; font-size: 13px; }
+
+  main { max-width: 1600px; margin: 0 auto; padding: 24px; }
+  .layout { display: grid; grid-template-columns: 520px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); margin-bottom: 24px; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .card-title { font-family: 'Archivo Black', sans-serif; font-size: 14px; letter-spacing: 0.02em; }
+  .card-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; }
+  .card-body { padding: 20px; }
+
+  .step { display: inline-block; background: var(--accent); color: #000; font-family: 'Archivo Black', sans-serif; font-size: 11px; padding: 4px 8px; margin-right: 6px; letter-spacing: 0.05em; }
+
+  .field { margin-bottom: 14px; }
+  .field-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.12em; }
+  .field-label .req { color: var(--accent); }
+  .field-label .opt { color: var(--text-dim); text-transform: none; letter-spacing: 0.02em; font-size: 10px; }
+  .field-label .ai { color: var(--info); font-size: 9px; }
+
+  input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="url"], select, textarea {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px; transition: border 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  input.ai-filled, textarea.ai-filled, select.ai-filled { border-left: 3px solid var(--info); }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .section { margin-bottom: 4px; border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 14px; }
+  .section:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .section-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .section-title::before { content: "▼"; font-size: 8px; transition: transform 0.2s; }
+  .section.collapsed .section-title::before { transform: rotate(-90deg); }
+  .section.collapsed .section-content { display: none; }
+  .ai-badge { display: inline-block; background: rgba(77,159,255,0.15); color: var(--info); border: 1px solid var(--info); padding: 1px 6px; font-size: 9px; letter-spacing: 0.08em; margin-left: auto; }
+
+  .ai-input-area { background: var(--surface-2); border: 1px solid var(--border); padding: 16px; }
+  .ai-input-area textarea { background: var(--bg); min-height: 110px; }
+  .ai-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; justify-content: space-between; }
+  .ai-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .ai-meta kbd { background: var(--surface); border: 1px solid var(--border); padding: 1px 5px; font-size: 9px; }
+
+  /* Confidence pill from Gemini */
+  .conf-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; padding: 10px 12px; background: var(--surface-2); border-left: 3px solid var(--info); }
+  .conf-row .conf-text { font-size: 12px; color: var(--text); }
+  .conf-badge { display: inline-block; padding: 2px 8px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; border: 1px solid; font-family: 'Archivo Black', sans-serif; }
+  .conf-badge.high { color: var(--success); border-color: var(--success); }
+  .conf-badge.medium { color: var(--warning); border-color: var(--warning); }
+  .conf-badge.low { color: var(--danger); border-color: var(--danger); }
+  .conf-badge.not_found { color: var(--text-dim); border-color: var(--text-dim); }
+  .sources-block { background: var(--surface-2); border: 1px solid var(--border); padding: 8px 12px; margin: 8px 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); max-height: 90px; overflow-y: auto; }
+  .sources-block a { color: var(--info); text-decoration: none; display: block; margin: 2px 0; }
+  .sources-block a:hover { color: #fff; }
+
+  .logo-upload { border: 2px dashed var(--border); padding: 16px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.15s; position: relative; }
+  .logo-upload:hover { border-color: var(--accent); }
+  .logo-upload.has-image { padding: 8px; }
+  .logo-upload input[type="file"] { display: none; }
+  .logo-upload-prompt { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 16px 8px; }
+  .logo-upload-prompt strong { color: var(--text-muted); display: block; margin-bottom: 4px; }
+  .logo-preview { max-width: 100%; max-height: 180px; display: block; margin: 0 auto; background: #fff; padding: 8px; }
+  .logo-actions { margin-top: 8px; display: flex; gap: 6px; justify-content: center; }
+
+  .submit-bar { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .submit-info { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+
+  .status { display: none; padding: 12px 16px; margin: 0 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; border-left: 3px solid; }
+  .status.show { display: block; }
+  .status.loading { background: rgba(212, 255, 0, 0.06); border-color: var(--accent); color: var(--accent); }
+  .status.error { background: rgba(255, 71, 87, 0.06); border-color: var(--danger); color: var(--danger); }
+  .status.success { background: rgba(0, 217, 126, 0.06); border-color: var(--success); color: var(--success); }
+  .status.info { background: rgba(77, 159, 255, 0.06); border-color: var(--info); color: var(--info); }
+  .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results-card { min-height: 600px; }
+  .filter-input { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 180px; }
+  .filter-input:focus { outline: none; border-color: var(--accent); }
+  .seller-filter { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 6px 26px 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+  .results-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .table-wrap { overflow-x: auto; max-width: 100%; max-height: 70vh; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  thead { background: var(--surface-2); position: sticky; top: 0; z-index: 5; }
+  th { text-align: left; padding: 10px; font-family: 'Archivo Black', sans-serif; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; max-width: 220px; word-break: break-word; }
+  tbody tr { transition: background 0.1s; cursor: pointer; }
+  tbody tr:hover { background: var(--surface-2); }
+  td.muted { color: var(--text-dim); }
+  td a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent-dim); }
+  td a:hover { color: #fff; }
+  .seller-badge { display: inline-block; padding: 2px 6px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; border: 1px solid var(--accent-dim); color: var(--accent); background: rgba(212,255,0,0.06); }
+  .sync-badge { display: inline-block; padding: 1px 6px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; border: 1px solid; }
+  .sync-badge.synced { color: var(--success); border-color: var(--success); }
+  .sync-badge.pending { color: var(--warning); border-color: var(--warning); }
+  .sync-badge.failed { color: var(--danger); border-color: var(--danger); }
+  .sync-badge.local { color: var(--text-dim); border-color: var(--text-dim); }
+
+  .empty { padding: 60px 20px; text-align: center; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .empty strong { display: block; color: var(--text-muted); font-family: 'Archivo Black', sans-serif; font-size: 14px; margin-bottom: 6px; }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); max-width: 720px; width: 100%; padding: 28px; position: relative; }
+  .modal-close { position: absolute; top: 12px; right: 12px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); width: 32px; height: 32px; cursor: pointer; font-size: 18px; font-family: 'Archivo Black', sans-serif; }
+  .modal-close:hover { border-color: var(--accent); color: var(--accent); }
+  .modal h2 { font-family: 'Archivo Black', sans-serif; font-size: 22px; margin-bottom: 4px; }
+  .modal .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 20px; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section h3 { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .modal-field { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 6px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .modal-field .k { color: var(--text-muted); }
+  .modal-field .v { color: var(--text); word-break: break-word; }
+  .modal-field .v.null { color: var(--text-dim); }
+  .modal-field a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent-dim); }
+  .modal-logo { max-width: 200px; max-height: 200px; background: #fff; padding: 8px; margin: 8px 0; display: block; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #000; padding: 10px 18px; font-family: 'Archivo Black', sans-serif; font-size: 12px; letter-spacing: 0.05em; z-index: 200; transform: translateY(80px); opacity: 0; transition: all 0.2s; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: var(--danger); color: #fff; }
+
+  @media (max-width: 700px) {
+    header { padding: 10px 14px; gap: 8px; }
+    .key-input { width: 200px; }
+    main { padding: 14px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .submit-bar { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <span class="brand">CLIENT<span>·</span>RECON<span>·</span>AI</span>
+    <span class="brand-tag">HASEEBMADEIT · INTERNAL</span>
+  </div>
+  <div class="header-right">
+    <span class="key-label">GEMINI:</span>
+    <input type="password" id="apiKey" class="key-input" placeholder="AIza..." autocomplete="off">
+    <a class="key-help" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">GET FREE KEY</a>
+    <button class="btn btn-sm" id="saveKey">SAVE</button>
+    <span style="width:12px;"></span>
+    <span class="key-label">SHEET:</span>
+    <input type="text" id="webhookUrl" class="key-input" placeholder="Apps Script Webhook URL" autocomplete="off">
+    <button class="btn btn-sm" id="saveWebhook">SAVE</button>
+  </div>
+</header>
+
+<main>
+  <div class="layout">
+
+    <!-- LEFT: AI INPUT + REVIEW FORM -->
+    <div>
+
+      <!-- AI Input Card -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title"><span class="step">1</span>PASTE WHAT YOU KNOW</span>
+          <span class="card-subtitle">AI · GEMINI · WEB SEARCH</span>
+        </div>
+        <div class="card-body">
+
+          <div id="aiStatus" class="status"></div>
+
+          <div class="field">
+            <label class="field-label">SELLER ACCOUNT <span class="req">*</span></label>
+            <select id="seller" required>
+              <option value="">— Select your Fiverr seller account —</option>
+              <option>AH2</option><option>BIC</option><option>XStudioz</option>
+              <option>Storm Design</option><option>Dygram Design</option><option>Eikon Design</option>
+              <option>Wedesign</option><option>Alee Studioz</option><option>Carpicon</option>
+              <option>Grid Design</option>
+            </select>
+          </div>
+
+          <div class="ai-input-area">
+            <label class="field-label">CLIENT INFO FROM FIVERR <span class="req">*</span> <span class="opt">— Fiverr username, brand name, order brief, any text from the chat. AI will figure it out.</span></label>
+            <textarea id="aiInput" placeholder="Example:&#10;&#10;  Fiverr user: jen_marlow&#10;  Brand: Northshore Roast Co&#10;  Order: vintage badge logo for specialty coffee roaster in Minnesota, launching spring 2026&#10;&#10;Or just paste a brief or username — AI handles the rest."></textarea>
+            <div class="ai-actions">
+              <div class="ai-meta"><kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>↵</kbd> to run</div>
+              <button type="button" class="btn btn-lg" id="runAiBtn">► RUN AI RECON</button>
+            </div>
+          </div>
+
+          <div id="confidenceBlock" style="display:none;">
+            <div class="conf-row">
+              <span class="conf-badge" id="confBadge">—</span>
+              <div class="conf-text" id="confText">—</div>
+            </div>
+            <div id="sourcesBlock" class="sources-block" style="display:none;"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Review/Edit Form Card -->
+      <section class="card" id="reviewCard" style="display:none;">
+        <div class="card-header">
+          <span class="card-title"><span class="step">2</span>REVIEW & SAVE</span>
+          <span class="card-subtitle">EDIT ANYTHING · BLUE BAR = AI FOUND IT</span>
+        </div>
+        <div class="card-body">
+
+          <div id="formStatus" class="status"></div>
+
+          <form id="reconForm">
+
+            <div class="section">
+              <div class="section-title">CORE <span class="ai-badge" id="ai-badge-core" style="display:none;">AI</span></div>
+              <div class="section-content">
+                <div class="grid-2">
+                  <div class="field">
+                    <label class="field-label">FIVERR USERNAME <span class="req">*</span></label>
+                    <input type="text" id="fiverrUsername" required>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">BRAND NAME <span class="req">*</span></label>
+                    <input type="text" id="brandName" required>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label class="field-label">INDUSTRY <span class="req">*</span></label>
+                    <input type="text" id="industry" required>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">COUNTRY <span class="opt">opt</span></label>
+                    <input type="text" id="country">
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label class="field-label">PROJECT VALUE $ <span class="opt">opt</span></label>
+                    <input type="number" id="projectValue" step="1" min="0">
+                  </div>
+                  <div class="field">
+                    <label class="field-label">BUSINESS MATURITY <span class="opt">opt</span></label>
+                    <select id="businessMaturity">
+                      <option value="">— Unknown —</option>
+                      <option value="pre_launch">Pre-launch</option>
+                      <option value="startup">Startup</option>
+                      <option value="growth">Growth</option>
+                      <option value="established">Established</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">WEB & SOCIAL <span class="ai-badge" id="ai-badge-web" style="display:none;">AI</span></div>
+              <div class="section-content">
+                <div class="field">
+                  <label class="field-label">WEBSITE <span class="opt">opt</span></label>
+                  <input type="url" id="website" placeholder="https://...">
+                </div>
+                <div class="grid-2">
+                  <div class="field"><label class="field-label">INSTAGRAM <span class="opt">opt</span></label><input type="text" id="instagram"></div>
+                  <div class="field"><label class="field-label">FACEBOOK <span class="opt">opt</span></label><input type="text" id="facebook"></div>
+                  <div class="field"><label class="field-label">LINKEDIN <span class="opt">opt</span></label><input type="text" id="linkedin"></div>
+                  <div class="field"><label class="field-label">TIKTOK <span class="opt">opt</span></label><input type="text" id="tiktok"></div>
+                  <div class="field"><label class="field-label">YOUTUBE <span class="opt">opt</span></label><input type="text" id="youtube"></div>
+                  <div class="field"><label class="field-label">X / TWITTER <span class="opt">opt</span></label><input type="text" id="twitter"></div>
+                  <div class="field"><label class="field-label">BEHANCE <span class="opt">opt</span></label><input type="text" id="behance"></div>
+                  <div class="field"><label class="field-label">PINTEREST <span class="opt">opt</span></label><input type="text" id="pinterest"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">CONTACT <span class="ai-badge" id="ai-badge-contact" style="display:none;">AI</span></div>
+              <div class="section-content">
+                <div class="grid-2">
+                  <div class="field"><label class="field-label">PUBLIC EMAIL <span class="opt">opt</span></label><input type="email" id="publicEmail"></div>
+                  <div class="field"><label class="field-label">PUBLIC PHONE <span class="opt">opt</span></label><input type="tel" id="publicPhone"></div>
+                  <div class="field"><label class="field-label">FOUNDER / PRINCIPAL <span class="opt">opt</span></label><input type="text" id="principalName"></div>
+                  <div class="field"><label class="field-label">YEAR ESTABLISHED <span class="opt">opt</span></label><input type="number" id="yearEstablished" min="1800" max="2099"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">COMMERCE & COMPETITORS <span class="ai-badge" id="ai-badge-commerce" style="display:none;">AI</span></div>
+              <div class="section-content">
+                <div class="grid-2">
+                  <div class="field"><label class="field-label">SHOPIFY <span class="opt">opt</span></label><input type="text" id="shopify"></div>
+                  <div class="field"><label class="field-label">ETSY <span class="opt">opt</span></label><input type="text" id="etsy"></div>
+                  <div class="field"><label class="field-label">AMAZON BRAND <span class="opt">opt</span></label><input type="text" id="amazon"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label">COMPETITORS <span class="opt">opt · comma-separated</span></label>
+                  <input type="text" id="competitors">
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">BRAND LOGO</div>
+              <div class="section-content">
+                <div class="field">
+                  <label class="field-label">UPLOAD LOGO IMAGE <span class="opt">opt · PNG/JPG/SVG, max 5MB</span></label>
+                  <div class="logo-upload" id="logoUploadBox">
+                    <input type="file" id="logoFile" accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp">
+                    <div class="logo-upload-prompt" id="logoPrompt">
+                      <strong>CLICK TO UPLOAD</strong>
+                      or drop image here
+                    </div>
+                    <img class="logo-preview" id="logoPreview" style="display:none;">
+                    <div class="logo-actions" id="logoActions" style="display:none;">
+                      <button type="button" class="btn btn-ghost btn-sm" id="changeLogo">CHANGE</button>
+                      <button type="button" class="btn btn-danger btn-sm" id="removeLogo">REMOVE</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">NOTES</div>
+              <div class="section-content">
+                <div class="field">
+                  <label class="field-label">FREE NOTES <span class="opt">opt · brief, references, anything else</span></label>
+                  <textarea id="notes"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="submit-bar">
+              <div class="submit-info">Saves locally + auto-syncs to Google Sheet</div>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="btn btn-ghost btn-sm" id="discardBtn">DISCARD</button>
+                <button type="submit" class="btn btn-lg" id="submitBtn">► SAVE TO SHEET</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT: RESULTS TABLE -->
+    <section class="card results-card">
+      <div class="card-header">
+        <div>
+          <span class="card-title">RECON LOG</span>
+          <span class="card-subtitle" style="margin-left:8px;" id="resultsCount">0 records</span>
+        </div>
+        <div class="results-actions">
+          <select id="sellerFilter" class="seller-filter">
+            <option value="">All sellers</option>
+            <option>AH2</option><option>BIC</option><option>XStudioz</option>
+            <option>Storm Design</option><option>Dygram Design</option><option>Eikon Design</option>
+            <option>Wedesign</option><option>Alee Studioz</option><option>Carpicon</option><option>Grid Design</option>
+          </select>
+          <input type="text" id="filterInput" class="filter-input" placeholder="Filter brand...">
+          <button class="btn btn-ghost btn-sm" id="resyncBtn" title="Resync any pending/failed">↻ RESYNC</button>
+          <button class="btn btn-ghost btn-sm" id="exportBtn">↓ CSV</button>
+          <button class="btn btn-danger btn-sm" id="clearBtn">CLEAR</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>SELLER</th><th>FIVERR</th><th>BRAND</th><th>INDUSTRY</th>
+              <th>WEBSITE</th><th>EMAIL</th><th>IG</th><th>$</th><th>WHEN</th><th>SYNC</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================================
+// CLIENT RECON · AI v3
+// AI auto-research (Gemini + Google Search) → CSR review → Google Sheet sync
+// ============================================================================
+
+// Model fallback chain — tries each one in order if previous returns 429
+// gemini-2.5-flash-lite has the highest free-tier grounded search limit
+const GEMINI_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
+const GEMINI_ENDPOINT = (model, key) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+
+const STORAGE_KEY_API = 'recon_gemini_api_key';
+const STORAGE_KEY_WEBHOOK = 'recon_webhook_url';
+const STORAGE_KEY_RECORDS = 'recon_records_v3';
+const MAX_LOGO_BYTES = 5 * 1024 * 1024;
+
+const AI_PROMPT = `You are a public business research assistant for a design agency on Fiverr.
+
+The user is a Fiverr seller. They will paste raw text about a client they got an order from — could include a Fiverr buyer username, a brand name, an order brief, or general info from a Fiverr message thread.
+
+Your job:
+1. Identify the specific business or brand from the pasted text.
+2. Use Google Search to find that business's public web presence.
+3. Return ONLY a valid JSON object matching the schema below — no prose, no markdown, no code fences, no explanation. Start with { and end with }.
+
+Only return information that is publicly listed on:
+- The business's own website or contact page
+- Their official, verified social media profiles
+- Public business listings (Google Business, Yelp, etc.)
+
+Do NOT return:
+- Personal phone numbers or personal emails of employees
+- Private social profiles of individuals
+- Speculative or unverified matches
+- Information from data brokers
+
+If you cannot confidently identify the specific business through search, set "confidence" to "not_found" and leave fields null. Do not guess. Do not fabricate.
+
+OUTPUT this exact JSON shape (every field required, use null when unknown):
+
+{
+  "input_understood_as": "1 short sentence describing the business you searched for",
+  "confidence": "high" | "medium" | "low" | "not_found",
+  "match_reasoning": "1 short sentence — why you believe this is the right business",
+  "fiverr_username": "Fiverr buyer username if it appeared in the input, else null",
+  "brand_name": "official brand name or null",
+  "industry": "short industry/niche label or null",
+  "country": "country or null",
+  "business_maturity": "pre_launch" | "startup" | "growth" | "established" | null,
+  "website": "https://... or null",
+  "instagram": "@handle or null",
+  "facebook": "URL or page name or null",
+  "linkedin": "linkedin.com/company/... or null",
+  "tiktok": "@handle or null",
+  "youtube": "URL or null",
+  "twitter": "@handle or null",
+  "behance": "URL or null",
+  "pinterest": "URL or null",
+  "public_email": "email or null",
+  "public_phone": "phone or null",
+  "principal_name": "founder/owner if publicly listed, else null",
+  "year_established": "YYYY or null",
+  "shopify": "URL or 'yes' if Shopify store exists, else null",
+  "etsy": "Etsy URL or null",
+  "amazon": "Amazon brand name or null",
+  "competitors": "comma-separated competitor names or domains, or null",
+  "notes": "1-2 sentences of useful context for designers (style, audience hints, etc.) or null"
+}
+
+CRITICAL: Output must be raw JSON only. No backticks. No "Here is the JSON:". Just {...}.`;
+
+// ----- STATE -----
+let records = JSON.parse(localStorage.getItem(STORAGE_KEY_RECORDS) || '[]');
+let currentLogo = null;
+let pendingAiData = null; // research result before save
+let filterText = '';
+let sellerFilter = '';
+
+const $ = (id) => document.getElementById(id);
+
+// ----- INIT -----
+function init() {
+  const savedKey = localStorage.getItem(STORAGE_KEY_API);
+  if (savedKey) { $('apiKey').value = savedKey; $('apiKey').classList.add('saved'); }
+  const savedHook = localStorage.getItem(STORAGE_KEY_WEBHOOK);
+  if (savedHook) { $('webhookUrl').value = savedHook; $('webhookUrl').classList.add('saved'); }
+  renderResults();
+  bindEvents();
+}
+
+function bindEvents() {
+  $('saveKey').addEventListener('click', saveApiKey);
+  $('apiKey').addEventListener('input', () => $('apiKey').classList.remove('saved'));
+  $('saveWebhook').addEventListener('click', saveWebhook);
+  $('webhookUrl').addEventListener('input', () => $('webhookUrl').classList.remove('saved'));
+
+  $('runAiBtn').addEventListener('click', runAiResearch);
+  $('aiInput').addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runAiResearch(); }
+  });
+
+  $('reconForm').addEventListener('submit', onSubmit);
+  $('discardBtn').addEventListener('click', discardReview);
+
+  document.querySelectorAll('.section-title').forEach(t => {
+    t.addEventListener('click', () => t.parentElement.classList.toggle('collapsed'));
+  });
+
+  $('logoUploadBox').addEventListener('click', (e) => {
+    if (e.target.id === 'changeLogo' || e.target.id === 'removeLogo') return;
+    $('logoFile').click();
+  });
+  $('logoFile').addEventListener('change', onLogoSelected);
+  $('changeLogo').addEventListener('click', () => $('logoFile').click());
+  $('removeLogo').addEventListener('click', clearLogo);
+  const box = $('logoUploadBox');
+  box.addEventListener('dragover', (e) => { e.preventDefault(); box.style.borderColor = 'var(--accent)'; });
+  box.addEventListener('dragleave', () => { box.style.borderColor = ''; });
+  box.addEventListener('drop', (e) => {
+    e.preventDefault(); box.style.borderColor = '';
+    const f = e.dataTransfer.files[0];
+    if (f) handleLogoFile(f);
+  });
+
+  $('filterInput').addEventListener('input', (e) => { filterText = e.target.value.toLowerCase(); renderResults(); });
+  $('sellerFilter').addEventListener('change', (e) => { sellerFilter = e.target.value; renderResults(); });
+  $('exportBtn').addEventListener('click', exportCsv);
+  $('clearBtn').addEventListener('click', clearAll);
+  $('resyncBtn').addEventListener('click', resyncPending);
+
+  $('modalClose').addEventListener('click', closeModal);
+  $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+}
+
+// ----- API KEY / WEBHOOK -----
+function saveApiKey() {
+  const k = $('apiKey').value.trim();
+  if (!k) { showToast('Empty key', true); return; }
+  if (!k.startsWith('AIza')) {
+    if (!confirm('Gemini keys start with "AIza". Save anyway?')) return;
+  }
+  localStorage.setItem(STORAGE_KEY_API, k);
+  $('apiKey').classList.add('saved');
+  showToast('KEY SAVED');
+}
+
+function saveWebhook() {
+  const u = $('webhookUrl').value.trim();
+  if (!u) { showToast('Empty URL', true); return; }
+  if (!u.startsWith('https://script.google.com/')) {
+    if (!confirm('Doesn\'t look like an Apps Script webhook. Save anyway?')) return;
+  }
+  localStorage.setItem(STORAGE_KEY_WEBHOOK, u);
+  $('webhookUrl').classList.add('saved');
+  showToast('WEBHOOK SAVED');
+}
+
+// ----- AI RESEARCH -----
+async function runAiResearch() {
+  const apiKey = localStorage.getItem(STORAGE_KEY_API);
+  const seller = $('seller').value;
+  const input = $('aiInput').value.trim();
+
+  if (!apiKey) { showAiStatus('error', 'Save your Gemini API key first (top of page).'); return; }
+  if (!seller) { showAiStatus('error', 'Pick a seller account.'); $('seller').focus(); return; }
+  if (!input) { showAiStatus('error', 'Paste something about the client first.'); $('aiInput').focus(); return; }
+
+  $('runAiBtn').disabled = true;
+  showAiStatus('loading', 'Gemini is searching the web…', true);
+
+  try {
+    const { data, sources } = await callGemini(apiKey, input);
+    pendingAiData = data;
+    pendingAiData._sources = sources;
+    pendingAiData._rawInput = input;
+    pendingAiData._seller = seller;
+    populateReviewForm(data, sources);
+    clearAiStatus();
+    showAiStatus('success', `✓ AI recon done · confidence: ${data.confidence || 'unknown'}. Review below then SAVE TO SHEET.`);
+  } catch (err) {
+    console.error(err);
+    showAiStatus('error', `AI recon failed: ${err.message}`);
+  } finally {
+    $('runAiBtn').disabled = false;
+  }
+}
+
+async function callGemini(apiKey, userText) {
+  const body = {
+    systemInstruction: { parts: [{ text: AI_PROMPT }] },
+    contents: [{ role: 'user', parts: [{ text: userText }] }],
+    tools: [{ google_search: {} }],
+    generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+  };
+
+  let lastError = null;
+
+  // Try each model in fallback chain until one succeeds
+  for (let i = 0; i < GEMINI_MODELS.length; i++) {
+    const model = GEMINI_MODELS[i];
+    try {
+      showAiStatus('loading', `Trying ${model}…`, true);
+
+      const res = await fetch(GEMINI_ENDPOINT(model, apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        let errBody = ''; try { errBody = await res.text(); } catch {}
+        if (res.status === 400) throw new Error(`Bad request (400). ${errBody.slice(0,180)}`);
+        if (res.status === 401 || res.status === 403) throw new Error(`Invalid/unauthorized key (${res.status}).`);
+        if (res.status === 429) {
+          lastError = new Error(`${model}: rate limited`);
+          // 429 → try next model in chain
+          if (i < GEMINI_MODELS.length - 1) {
+            await new Promise(r => setTimeout(r, 1500)); // brief pause before next try
+            continue;
+          }
+          throw new Error('All free-tier models hit rate limits. Wait 60s, or enable billing on your Gemini key for unlimited usage.');
+        }
+        if (res.status >= 500) {
+          lastError = new Error(`${model}: server error ${res.status}`);
+          if (i < GEMINI_MODELS.length - 1) continue;
+          throw new Error(`Gemini server error (${res.status}). Retry.`);
+        }
+        throw new Error(`API error ${res.status}: ${errBody.slice(0, 200)}`);
+      }
+
+      const responseData = await res.json();
+      const cand = responseData?.candidates?.[0];
+      if (!cand) {
+        lastError = new Error(`${model}: empty response`);
+        if (i < GEMINI_MODELS.length - 1) continue;
+        throw new Error('Empty response from Gemini.');
+      }
+      if (cand.finishReason === 'SAFETY') throw new Error('Gemini blocked response (safety). Try different input.');
+      if (cand.finishReason === 'RECITATION') throw new Error('Gemini blocked response (recitation). Try different input.');
+
+      const parts = cand.content?.parts || [];
+      const text = parts.map(p => p.text || '').join('').trim();
+      if (!text) {
+        lastError = new Error(`${model}: empty text`);
+        if (i < GEMINI_MODELS.length - 1) continue;
+        throw new Error('Gemini returned empty text.');
+      }
+
+      const sources = [];
+      const chunks = cand.groundingMetadata?.groundingChunks || [];
+      for (const c of chunks) {
+        if (c?.web?.uri) sources.push(c.web.uri);
+      }
+
+      const data = extractJson(text);
+      // Tag which model succeeded for debugging
+      data._modelUsed = model;
+      return { data, sources };
+
+    } catch (err) {
+      lastError = err;
+      // Only continue chain on rate limit / server errors / empty responses
+      // Hard errors (bad key, malformed input) bubble up immediately
+      if (err.message.includes('Invalid') || err.message.includes('Bad request') ||
+          err.message.includes('safety') || err.message.includes('recitation') ||
+          err.message.includes('malformed JSON')) {
+        throw err;
+      }
+    }
+  }
+
+  throw lastError || new Error('All models failed.');
+}
+
+function extractJson(text) {
+  let s = text.trim();
+  s = s.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  if (!s.startsWith('{')) {
+    const first = s.indexOf('{'), last = s.lastIndexOf('}');
+    if (first !== -1 && last > first) s = s.slice(first, last + 1);
+  }
+  try { return JSON.parse(s); }
+  catch (e) {
+    try {
+      let r = s.replace(/,\s*([}\]])/g, '$1');
+      const o = (r.match(/{/g) || []).length, c = (r.match(/}/g) || []).length;
+      if (o > c) r += '}'.repeat(o - c);
+      return JSON.parse(r);
+    } catch (e2) {
+      console.error('JSON parse failed. Raw:', text);
+      throw new Error('Gemini returned malformed JSON. Try again.');
+    }
+  }
+}
+
+// ----- POPULATE REVIEW FORM -----
+function populateReviewForm(data, sources) {
+  $('reviewCard').style.display = 'block';
+  $('confidenceBlock').style.display = 'block';
+
+  const conf = data.confidence || 'not_found';
+  $('confBadge').className = 'conf-badge ' + conf;
+  $('confBadge').textContent = conf.toUpperCase();
+  $('confText').innerHTML = `<strong>${esc(data.input_understood_as || '—')}</strong> · ${esc(data.match_reasoning || '—')}`;
+
+  if (sources && sources.length) {
+    $('sourcesBlock').style.display = 'block';
+    $('sourcesBlock').innerHTML = '<div style="color:var(--text-dim);margin-bottom:4px;">Sources used:</div>' +
+      sources.slice(0, 8).map(s => `<a href="${esc(s)}" target="_blank" rel="noopener">${esc(s)}</a>`).join('');
+  } else {
+    $('sourcesBlock').style.display = 'none';
+  }
+
+  // Map AI fields → form, mark AI-filled visually
+  const map = {
+    fiverrUsername: data.fiverr_username,
+    brandName: data.brand_name,
+    industry: data.industry,
+    country: data.country,
+    businessMaturity: data.business_maturity,
+    website: data.website,
+    instagram: data.instagram,
+    facebook: data.facebook,
+    linkedin: data.linkedin,
+    tiktok: data.tiktok,
+    youtube: data.youtube,
+    twitter: data.twitter,
+    behance: data.behance,
+    pinterest: data.pinterest,
+    publicEmail: data.public_email,
+    publicPhone: data.public_phone,
+    principalName: data.principal_name,
+    yearEstablished: data.year_established,
+    shopify: data.shopify,
+    etsy: data.etsy,
+    amazon: data.amazon,
+    competitors: data.competitors,
+    notes: data.notes
+  };
+
+  // Track which sections got filled
+  const sectionFilled = { core: false, web: false, contact: false, commerce: false };
+  const sectionMap = {
+    fiverrUsername: 'core', brandName: 'core', industry: 'core', country: 'core',
+    businessMaturity: 'core',
+    website: 'web', instagram: 'web', facebook: 'web', linkedin: 'web',
+    tiktok: 'web', youtube: 'web', twitter: 'web', behance: 'web', pinterest: 'web',
+    publicEmail: 'contact', publicPhone: 'contact', principalName: 'contact', yearEstablished: 'contact',
+    shopify: 'commerce', etsy: 'commerce', amazon: 'commerce', competitors: 'commerce'
+  };
+
+  Object.keys(map).forEach(key => {
+    const el = $(key);
+    if (!el) return;
+    el.classList.remove('ai-filled');
+    if (map[key] !== null && map[key] !== undefined && map[key] !== '') {
+      el.value = map[key];
+      el.classList.add('ai-filled');
+      if (sectionMap[key]) sectionFilled[sectionMap[key]] = true;
+    } else {
+      el.value = '';
+    }
+  });
+
+  // If user didn't see fiverr_username in AI output, try to pull it from raw input as fallback
+  if (!$('fiverrUsername').value) {
+    const usernameGuess = guessFiverrUsername(pendingAiData._rawInput);
+    if (usernameGuess) {
+      $('fiverrUsername').value = usernameGuess;
+    }
+  }
+
+  // Show AI badges per section
+  ['core', 'web', 'contact', 'commerce'].forEach(s => {
+    const b = $('ai-badge-' + s);
+    if (b) b.style.display = sectionFilled[s] ? 'inline-block' : 'none';
+  });
+
+  // Scroll review card into view
+  setTimeout(() => $('reviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function guessFiverrUsername(text) {
+  // Heuristic: look for "user: X", "username: X", "@X", or a line like "from username_xyz"
+  const m1 = text.match(/(?:fiverr\s*user(?:name)?|buyer|user|username|from)\s*[:\-]?\s*@?([a-z][a-z0-9_]{2,32})/i);
+  if (m1) return m1[1];
+  const m2 = text.match(/@([a-z][a-z0-9_]{2,32})/i);
+  if (m2) return m2[1];
+  return null;
+}
+
+function discardReview() {
+  if (!confirm('Discard this AI recon? You\'ll lose the data — not yet saved to sheet.')) return;
+  pendingAiData = null;
+  $('reconForm').reset();
+  clearLogo();
+  $('reviewCard').style.display = 'none';
+  $('confidenceBlock').style.display = 'none';
+  clearFormStatus();
+  clearAiStatus();
+  document.querySelectorAll('.ai-filled').forEach(el => el.classList.remove('ai-filled'));
+  document.querySelectorAll('.ai-badge').forEach(b => b.style.display = 'none');
+  $('aiInput').value = '';
+  $('aiInput').focus();
+}
+
+// ----- LOGO -----
+function onLogoSelected(e) { const f = e.target.files[0]; if (f) handleLogoFile(f); }
+function handleLogoFile(file) {
+  if (file.size > MAX_LOGO_BYTES) { showToast('Logo too big (>5MB)', true); return; }
+  if (!file.type.startsWith('image/')) { showToast('Not an image', true); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    currentLogo = { dataUrl: ev.target.result, name: file.name, mimeType: file.type, size: file.size };
+    $('logoPreview').src = ev.target.result;
+    $('logoPreview').style.display = 'block';
+    $('logoPrompt').style.display = 'none';
+    $('logoActions').style.display = 'flex';
+    $('logoUploadBox').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+function clearLogo() {
+  currentLogo = null;
+  $('logoFile').value = '';
+  $('logoPreview').style.display = 'none';
+  $('logoPrompt').style.display = 'block';
+  $('logoActions').style.display = 'none';
+  $('logoUploadBox').classList.remove('has-image');
+}
+
+// ----- SUBMIT -----
+async function onSubmit(e) {
+  e.preventDefault();
+  const data = collectFormData();
+  if (!data) return;
+  if (!pendingAiData || !pendingAiData._seller) {
+    showFormStatus('error', 'Internal state lost — please re-run AI recon');
+    return;
+  }
+  const record = {
+    id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+    timestamp: new Date().toISOString(),
+    seller: pendingAiData._seller,
+    aiConfidence: pendingAiData.confidence,
+    aiReasoning: pendingAiData.match_reasoning,
+    aiSources: pendingAiData._sources || [],
+    rawAiInput: pendingAiData._rawInput,
+    ...data,
+    logo: currentLogo,
+    syncStatus: 'pending',
+    syncedAt: null,
+    syncError: null,
+    driveLink: null
+  };
+  records.unshift(record);
+  persist();
+  renderResults();
+  showFormStatus('loading', `Saved locally · syncing "${record.brandName}" to sheet…`, true);
+
+  // Reset form so user can do next one
+  pendingAiData = null;
+  $('reconForm').reset();
+  clearLogo();
+  $('aiInput').value = '';
+  document.querySelectorAll('.ai-filled').forEach(el => el.classList.remove('ai-filled'));
+  document.querySelectorAll('.ai-badge').forEach(b => b.style.display = 'none');
+  $('reviewCard').style.display = 'none';
+  $('confidenceBlock').style.display = 'none';
+  clearAiStatus();
+
+  try {
+    const result = await syncToSheet(record);
+    record.syncStatus = 'synced';
+    record.syncedAt = new Date().toISOString();
+    record.driveLink = result.driveLink || null;
+    persist(); renderResults();
+    showAiStatus('success', `✓ "${record.brandName}" synced to sheet · ${record.seller} tab`);
+    clearFormStatus();
+    setTimeout(clearAiStatus, 4500);
+  } catch (err) {
+    record.syncStatus = 'failed';
+    record.syncError = err.message;
+    persist(); renderResults();
+    showAiStatus('error', `Local save OK, sheet sync failed: ${err.message} — hit RESYNC to retry`);
+    clearFormStatus();
+  }
+}
+
+function collectFormData() {
+  const required = ['fiverrUsername', 'brandName', 'industry'];
+  for (const id of required) {
+    if (!$(id).value.trim()) {
+      showFormStatus('error', `Missing required field: ${id}`);
+      $(id).focus();
+      return null;
+    }
+  }
+  return {
+    fiverrUsername: $('fiverrUsername').value.trim(),
+    brandName: $('brandName').value.trim(),
+    industry: $('industry').value.trim(),
+    country: $('country').value.trim(),
+    projectValue: $('projectValue').value.trim(),
+    businessMaturity: $('businessMaturity').value.trim(),
+    website: $('website').value.trim(),
+    instagram: $('instagram').value.trim(),
+    facebook: $('facebook').value.trim(),
+    linkedin: $('linkedin').value.trim(),
+    tiktok: $('tiktok').value.trim(),
+    youtube: $('youtube').value.trim(),
+    twitter: $('twitter').value.trim(),
+    behance: $('behance').value.trim(),
+    pinterest: $('pinterest').value.trim(),
+    publicEmail: $('publicEmail').value.trim(),
+    publicPhone: $('publicPhone').value.trim(),
+    principalName: $('principalName').value.trim(),
+    yearEstablished: $('yearEstablished').value.trim(),
+    shopify: $('shopify').value.trim(),
+    etsy: $('etsy').value.trim(),
+    amazon: $('amazon').value.trim(),
+    competitors: $('competitors').value.trim(),
+    notes: $('notes').value.trim()
+  };
+}
+
+// ----- SHEET SYNC -----
+async function syncToSheet(record) {
+  const webhook = localStorage.getItem(STORAGE_KEY_WEBHOOK);
+  if (!webhook) throw new Error('No webhook URL set — paste it in the header');
+  const payload = { ...record };
+  const res = await fetch(webhook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status}: ${t.slice(0, 180)}`);
+  }
+  let data;
+  try { data = await res.json(); } catch { throw new Error('Sheet returned non-JSON'); }
+  if (data.status !== 'ok') throw new Error(data.error || 'Sheet rejected the row');
+  return data;
+}
+
+async function resyncPending() {
+  const pending = records.filter(r => r.syncStatus !== 'synced');
+  if (!pending.length) { showToast('NOTHING TO RESYNC'); return; }
+  showAiStatus('loading', `Resyncing ${pending.length}…`, true);
+  let ok = 0, fail = 0;
+  for (const r of pending) {
+    try {
+      const result = await syncToSheet(r);
+      r.syncStatus = 'synced';
+      r.syncedAt = new Date().toISOString();
+      r.driveLink = result.driveLink || null;
+      r.syncError = null;
+      ok++;
+    } catch (err) {
+      r.syncStatus = 'failed';
+      r.syncError = err.message;
+      fail++;
+    }
+  }
+  persist(); renderResults();
+  if (fail === 0) { showAiStatus('success', `✓ Resynced ${ok}`); setTimeout(clearAiStatus, 4000); }
+  else { showAiStatus('error', `Resynced ${ok}, ${fail} still failing`); }
+}
+
+// ----- STATUS / TOAST -----
+function showAiStatus(type, msg, withSpinner = false) {
+  const el = $('aiStatus');
+  el.className = `status show ${type}`;
+  el.innerHTML = (withSpinner ? '<span class="spinner"></span>' : '') + esc(msg);
+}
+function clearAiStatus() { $('aiStatus').className = 'status'; $('aiStatus').innerHTML = ''; }
+function showFormStatus(type, msg, withSpinner = false) {
+  const el = $('formStatus');
+  el.className = `status show ${type}`;
+  el.innerHTML = (withSpinner ? '<span class="spinner"></span>' : '') + esc(msg);
+}
+function clearFormStatus() { $('formStatus').className = 'status'; $('formStatus').innerHTML = ''; }
+function showToast(msg, isError = false) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ----- RENDER TABLE -----
+function renderResults() {
+  let filtered = records;
+  if (sellerFilter) filtered = filtered.filter(r => r.seller === sellerFilter);
+  if (filterText) {
+    filtered = filtered.filter(r => {
+      const hay = `${r.brandName||''} ${r.fiverrUsername||''} ${r.industry||''} ${r.notes||''}`.toLowerCase();
+      return hay.includes(filterText);
+    });
+  }
+  $('resultsCount').textContent = `${filtered.length} record${filtered.length===1?'':'s'}` + (filtered.length !== records.length ? ` · of ${records.length}` : '');
+
+  if (!filtered.length) {
+    $('resultsBody').innerHTML = `<tr><td colspan="12"><div class="empty"><strong>${records.length === 0 ? 'No recons yet' : 'No matches'}</strong>${records.length === 0 ? 'Paste client info on the left and hit RUN AI RECON.' : 'Adjust your filter.'}</div></td></tr>`;
+    return;
+  }
+  $('resultsBody').innerHTML = filtered.map(r => {
+    const num = records.indexOf(r) + 1;
+    return `
+      <tr data-id="${r.id}">
+        <td class="muted">${num}</td>
+        <td><span class="seller-badge">${esc(r.seller)}</span></td>
+        <td>${esc(r.fiverrUsername) || muted('—')}</td>
+        <td><strong>${esc(r.brandName)}</strong></td>
+        <td>${esc(r.industry) || muted('—')}</td>
+        <td>${linkCell(r.website)}</td>
+        <td>${esc(r.publicEmail) || muted('—')}</td>
+        <td>${socialCell(r.instagram, 'instagram.com')}</td>
+        <td>${r.projectValue ? '$'+esc(r.projectValue) : muted('—')}</td>
+        <td class="muted">${formatTime(r.timestamp)}</td>
+        <td><span class="sync-badge ${r.syncStatus}">${r.syncStatus}</span></td>
+        <td><button class="btn btn-ghost btn-sm view-btn" data-id="${r.id}">VIEW</button></td>
+      </tr>`;
+  }).join('');
+  document.querySelectorAll('.view-btn').forEach(b =>
+    b.addEventListener('click', (e) => { e.stopPropagation(); openDetail(b.dataset.id); })
+  );
+  document.querySelectorAll('tr[data-id]').forEach(tr =>
+    tr.addEventListener('click', () => openDetail(tr.dataset.id))
+  );
+}
+
+function linkCell(url) {
+  if (!url) return muted('—');
+  let url2 = url;
+  if (!/^https?:\/\//.test(url2) && !url2.startsWith('@')) url2 = 'https://' + url2;
+  const display = String(url).replace(/^https?:\/\//, '').replace(/^www\./, '').slice(0, 26);
+  return `<a href="${esc(url2)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(display)}</a>`;
+}
+function socialCell(handle, domain) {
+  if (!handle) return muted('—');
+  let url = handle;
+  if (!/^https?:\/\//.test(url)) {
+    const clean = handle.replace(/^@/, '');
+    url = `https://${domain}/${clean}`;
+  }
+  const display = handle.startsWith('@') ? handle : '@' + handle.replace(/^https?:\/\/[^/]+\//, '').replace(/\/$/, '');
+  return `<a href="${esc(url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(display.slice(0, 18))}</a>`;
+}
+function muted(s) { return `<span class="muted">${s}</span>`; }
+function esc(s) { if (s === null || s === undefined) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function formatTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return d.toLocaleDateString();
+}
+
+// ----- MODAL -----
+function openDetail(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  const conf = r.aiConfidence || 'not_found';
+  $('modalBody').innerHTML = `
+    <h2>${esc(r.brandName)}</h2>
+    <div class="meta">
+      <span class="seller-badge">${esc(r.seller)}</span> ·
+      ${esc(r.industry)} · ${esc(r.country) || 'no country'} ·
+      ${formatTime(r.timestamp)} ·
+      <span class="sync-badge ${r.syncStatus}">${r.syncStatus}</span> ·
+      AI: <span class="conf-badge ${conf}">${conf}</span>
+    </div>
+    ${r.aiReasoning ? `<div class="conf-row" style="margin-top:8px;"><div class="conf-text">${esc(r.aiReasoning)}</div></div>` : ''}
+    ${r.logo ? `<div class="modal-section"><h3>Logo</h3><img class="modal-logo" src="${r.logo.dataUrl}" alt="logo">${r.driveLink ? `<div class="modal-field"><span class="k">Drive link</span><span class="v"><a href="${esc(r.driveLink)}" target="_blank" rel="noopener">open in drive</a></span></div>` : ''}</div>` : ''}
+    <div class="modal-section"><h3>Core</h3>
+      ${f('Fiverr Username', r.fiverrUsername)}
+      ${f('Brand Name', r.brandName)}
+      ${f('Industry', r.industry)}
+      ${f('Country', r.country)}
+      ${f('Project Value', r.projectValue ? '$' + r.projectValue : null)}
+      ${f('Business Maturity', r.businessMaturity)}
+    </div>
+    <div class="modal-section"><h3>Web & Social</h3>
+      ${f('Website', r.website, true)}
+      ${f('Instagram', r.instagram)}
+      ${f('Facebook', r.facebook, true)}
+      ${f('LinkedIn', r.linkedin, true)}
+      ${f('TikTok', r.tiktok)}
+      ${f('YouTube', r.youtube, true)}
+      ${f('Twitter / X', r.twitter)}
+      ${f('Behance', r.behance, true)}
+      ${f('Pinterest', r.pinterest, true)}
+    </div>
+    <div class="modal-section"><h3>Contact</h3>
+      ${f('Email', r.publicEmail)}
+      ${f('Phone', r.publicPhone)}
+      ${f('Founder', r.principalName)}
+      ${f('Year', r.yearEstablished)}
+    </div>
+    <div class="modal-section"><h3>Commerce & Competitors</h3>
+      ${f('Shopify', r.shopify)}
+      ${f('Etsy', r.etsy, true)}
+      ${f('Amazon', r.amazon)}
+      ${f('Competitors', r.competitors)}
+    </div>
+    ${r.notes ? `<div class="modal-section"><h3>Notes</h3><div style="font-family:'Space Grotesk',sans-serif;font-size:13px;white-space:pre-wrap;background:var(--surface-2);padding:12px;border:1px solid var(--border);">${esc(r.notes)}</div></div>` : ''}
+    ${r.aiSources && r.aiSources.length ? `<div class="modal-section"><h3>AI Sources</h3>${r.aiSources.map(s => `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;margin:3px 0;"><a href="${esc(s)}" target="_blank" rel="noopener" style="color:var(--info);">${esc(s)}</a></div>`).join('')}</div>` : ''}
+    ${r.syncError ? `<div class="modal-section"><h3>Sync Error</h3><div style="color:var(--danger);font-size:12px;font-family:'JetBrains Mono',monospace;">${esc(r.syncError)}</div></div>` : ''}
+    <div style="display:flex;gap:8px;margin-top:20px;">
+      <button class="btn btn-sm" onclick="copyText(JSON.stringify(window._detail,null,2))">⧉ COPY JSON</button>
+      ${r.syncStatus !== 'synced' ? `<button class="btn btn-ghost btn-sm" id="resyncOne">↻ RETRY SYNC</button>` : ''}
+      <button class="btn btn-danger btn-sm" id="delBtn">DELETE</button>
+    </div>`;
+  window._detail = r;
+  $('modal').classList.add('show');
+  const delBtn = $('delBtn');
+  if (delBtn) delBtn.addEventListener('click', () => {
+    if (!confirm('Delete this record?')) return;
+    records = records.filter(x => x.id !== id);
+    persist(); renderResults(); closeModal(); showToast('DELETED');
+  });
+  const resyncOne = $('resyncOne');
+  if (resyncOne) resyncOne.addEventListener('click', async () => {
+    try {
+      const result = await syncToSheet(r);
+      r.syncStatus = 'synced'; r.syncedAt = new Date().toISOString();
+      r.driveLink = result.driveLink || null; r.syncError = null;
+      persist(); renderResults(); closeModal(); showToast('SYNCED');
+    } catch (err) {
+      r.syncError = err.message;
+      persist(); openDetail(id);
+      showToast('SYNC FAILED', true);
+    }
+  });
+}
+function f(label, value, isUrl = false) {
+  const isNull = !value;
+  const valHtml = isNull ? '<span class="v null">—</span>' : (isUrl ? `<span class="v"><a href="${esc(value)}" target="_blank" rel="noopener">${esc(value)}</a></span>` : `<span class="v">${esc(value)}</span>`);
+  return `<div class="modal-field"><span class="k">${esc(label)}</span>${valHtml}</div>`;
+}
+function closeModal() { $('modal').classList.remove('show'); window._detail = null; }
+
+// ----- EXPORT / CLEAR -----
+function exportCsv() {
+  if (!records.length) { showToast('NOTHING TO EXPORT', true); return; }
+  const headers = ['timestamp','seller','fiverrUsername','brandName','industry','country','projectValue','businessMaturity','website','instagram','facebook','linkedin','tiktok','youtube','twitter','behance','pinterest','publicEmail','publicPhone','principalName','yearEstablished','shopify','etsy','amazon','competitors','notes','aiConfidence','aiReasoning','driveLink','syncStatus'];
+  const rows = records.map(r => headers.map(h => r[h] ?? ''));
+  const csv = [headers, ...rows].map(row => row.map(cell => {
+    const s = String(cell || '').replace(/"/g, '""');
+    return /[",\n]/.test(s) ? `"${s}"` : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `client_recon_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast(`EXPORTED ${records.length}`);
+}
+function clearAll() {
+  if (!records.length) return;
+  if (!confirm(`Delete all ${records.length} local records? Sheet rows NOT deleted.`)) return;
+  records = []; persist(); renderResults(); showToast('CLEARED');
+}
+function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('COPIED')); }
+function persist() {
+  if (records.length > 500) records = records.slice(0, 500);
+  try { localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records)); }
+  catch (e) {
+    records = records.map((r, i) => i < 50 ? r : { ...r, logo: null });
+    try { localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records)); } catch (e2) {}
+  }
+}
+
+init();
+</script>
+</body>
+</html>
